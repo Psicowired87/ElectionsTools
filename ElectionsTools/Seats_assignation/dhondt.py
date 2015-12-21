@@ -10,19 +10,21 @@ check price
 """
 
 import numpy as np
+import pandas as pd
 from seats_assignation import Seat_assignator, recalibrate_cutoff,\
-    prepare_votetypes
+    prepare_votetypes, filter_parties
 
 
 class DHondt_assignation(Seat_assignator):
     """DHondt assignation of seats from votes.
     """
 
-    def __init__(self, n_seats, votetypes={}):
+    def __init__(self, n_seats, votetypes={}, cutoff=0):
         "Initialization of the parameters of the specific assignation."
         self.votetypes, self.n_seats = votetypes, n_seats
+        self.cutoff = cutoff
 
-    def assignation(self, votes, cutoff=0):
+    def assignation(self, votes, cutoff=0, pandas_out=True):
         """DHondt assignation.
 
         Parameters
@@ -41,13 +43,19 @@ class DHondt_assignation(Seat_assignator):
 
         """
         ## 0. Prepare variable needed
+        cutoff = self.cutoff if cutoff == 0 else cutoff
         self.votetypes = prepare_votetypes(votes, self.votetypes)
         ## 1. Compute assignation
         seats, prices = transform_votes2seats_dhondt(votes, self.votetypes,
                                                      self.n_seats, cutoff)
+        if pandas_out:
+            ind, parties = votes.index, filter_parties(votes.columns)
+            prices = pd.DataFrame(prices, index=ind)
+            seats = pd.DataFrame(seats, columns=parties, index=ind)
         return seats, prices
 
-    def compute_unused_votes(self, votes, seats, prices, cutoff=0):
+    def compute_unused_votes(self, votes, seats, prices, cutoff=0,
+                             pandas_out=True):
         """Compute the residual votes not used to buy a seat.
 
         Parameters
@@ -67,12 +75,15 @@ class DHondt_assignation(Seat_assignator):
             the residual votes not used to pay seats and above the cutoff.
 
         """
-	if type(votes) == pd.DataFrame:
-	    seatable_votes = votes[self.votetypes['seatable']].as_matrix()
-	else:
-	    seatable_votes = votes
+        if type(votes) == pd.DataFrame:
+            seatable_votes = votes[self.votetypes['seatable']].as_matrix()
+        else:
+            seatable_votes = votes
         rest_votes = compute_residual_dhondt_votes(seatable_votes, seats,
                                                    prices, cutoff)
+        if pandas_out:
+            rest_votes = pd.DataFrame(rest_votes, columns=votes.columns,
+                                      index=votes.index)
         return rest_votes
 
 

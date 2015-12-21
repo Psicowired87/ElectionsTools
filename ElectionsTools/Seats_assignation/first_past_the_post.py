@@ -6,6 +6,7 @@ A method of assignament in which the winner takes all.
 """
 
 import numpy as np
+import pandas as pd
 from seats_assignation import Seat_assignator, prepare_votetypes
 
 
@@ -13,11 +14,12 @@ class FPTP_assignation(Seat_assignator):
     """A winner takes all the seats.
     """
 
-    def __init__(self, n_seats=1, votetypes={}):
+    def __init__(self, n_seats=1, votetypes={}, cutoff=0):
         "Initialization of the parameters of the specific assignation."
         self.votetypes, self.n_seats = votetypes, n_seats
+        self.cutoff = cutoff
 
-    def assignation(self, votes):
+    def assignation(self, votes, pandas_out=True):
         """Major residual assignation.
 
         Parameters
@@ -34,14 +36,19 @@ class FPTP_assignation(Seat_assignator):
 
         """
         ## 0. Prepare variable needed
+        cutoff = self.cutoff if cutoff == 0 else cutoff
         self.votetypes = prepare_votetypes(votes, self.votetypes)
         ## 1. Compute assignation
         seats, prices = transform_votes2seats_FPTP(votes, self.votetypes,
                                                    self.n_seats)
+        if pandas_out:
+            ind = votes.index
+            prices = pd.DataFrame(prices, index=ind)
+            seats = pd.DataFrame(seats, columns=votes.columns, index=ind)
 
         return seats, prices
 
-    def compute_unused_votes(self, votes, winners, cutoff=0):
+    def compute_unused_votes(self, votes, winners, cutoff=0, pandas_out=True):
         """Compute the votes which are not used to assign seats.
 
         Parameters
@@ -63,7 +70,9 @@ class FPTP_assignation(Seat_assignator):
         rest_votes = self.compute_seatable_votes(votes)
         rest_votes = rest_votes * mask_cutoff
         rest_votes[np.arange(rest_votes.shape[0]), winners] = 0
-
+        if pandas_out:
+            rest_votes = pd.DataFrame(rest_votes, columns=votes.columns,
+                                      index=votes.index)
         return rest_votes
 
 

@@ -5,14 +5,11 @@ TODO
 implement checkers of the properties described in
 http://blog.pseudolog.com/article/la-ley-d-hont
 
-collapser
 check votes in the next step have nulos and blancos included.
 """
 
-
-import pandas as pd
 import numpy as np
-
+from itertools import product
 
 noncomputable = ['nulos', 'abstencion']
 nonseatable = ['blancos', 'nulos', 'abstencion']
@@ -138,7 +135,6 @@ def transform_votes2seats_hondt(votes, votetypes, n_seats, cutoff=0):
         seats[i, :], ps[i] = hondt_method(seatable_votes[i, :], n_seats[i],
                                           cutoff[i])
 
-
     v_restantes = computable_votes - np.multiply(ps, seats.T).T
 
     major_residual_method(v_restantes, n_seats, cutoff=0)
@@ -198,7 +194,7 @@ def prepare_votetypes(votes, votetypes):
     """
     if type(votes) == np.ndarray:
         votetypes = {}
-	return votetypes
+        return votetypes
     cols = votes.columns
     votetypes['computable'] = [c for c in cols if c not in noncomputable]
     votetypes['seatable'] = [c for c in cols if c not in nonseatable]
@@ -246,3 +242,20 @@ def compute_computable_votes(votes, votetypes):
     votetypes = prepare_votetypes(votes, votetypes)
     computable_votes = votes[votetypes['computable']]
     return computable_votes
+
+
+def filter_parties(lista):
+    return [e for e in lista if e not in nonseatable]
+
+
+def create_bunch_assignators(assign_class, assign_pars, names=None):
+    a, b = range(len(assign_class)), range(len(assign_pars))
+    assignators = []
+    names_a = []
+    for i, j in product(a, b):
+        assignators.append([assign_class[i], assign_pars[j]])
+        if names:
+            names_a.append('_'.join([names[0][i], names[1][j]]))
+        else:
+            names_a.append([i, j])
+    return assignators, names_a

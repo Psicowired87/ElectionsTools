@@ -7,7 +7,7 @@ TODO
 |--- SNTF(Single non transfarable vote)
 |----STV (Single transfarable voting)
 
-
+-Recrutinio tools
 
 
 Bibliography
@@ -30,3 +30,5 @@ from seats_assignation import Mix_assignation
 from major_residual import MResidual_assignation
 from dhondt import DHondt_assignation
 from first_past_the_post import FPTP_assignation
+
+from seats_assignation import create_bunch_assignators
