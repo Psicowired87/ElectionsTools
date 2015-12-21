@@ -7,7 +7,7 @@ TODO
 |--- SNTF(Single non transfarable vote)
 |----STV (Single transfarable voting)
 
--Recrutinio tools
+-Escrutinio tools
 
 
 Bibliography
