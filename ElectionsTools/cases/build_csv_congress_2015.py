@@ -22,6 +22,7 @@ urlweb = "http://resultadosgenerales2015.interior.es/congreso/results/ES201512-C
 
 
 def parse_json(urljson):
+    "Fetch and parse a json file from internet."
     req = urllib2.Request(urljson)
     opener = urllib2.build_opener()
     f = opener.open(req)
@@ -30,6 +31,8 @@ def parse_json(urljson):
 
 
 def create_regions_urls(regions_data, region_lvl):
+    """Create regions urls to query for the results.
+    """
     if region_lvl == 'comunidad':
         regions_nf = [str(regions_data[i][0])+"/" for i in range(len(regions_data))]
         regions_urls = [urlreq % regions_nf[i] for i in range(len(regions_nf))]
@@ -55,6 +58,7 @@ def create_regions_urls(regions_data, region_lvl):
 
 
 def get_parties_info(regions_urls=None):
+    "Get the parties info of one region from results data."
     if regions_urls is None:
         party_info = parse_json(urlweb + "/info.json")['results']['parties']
         party_acronyms = [party_info[i]['acronym'] for i in range(len(party_info))]
@@ -75,6 +79,7 @@ def get_parties_info(regions_urls=None):
 
 
 def get_regions_info(region_lvl):
+    "Obtain the region info."
     if region_lvl in ['', 'nacional', 'estado']:
         urlregion = urlreq % ''
         regions_data = parse_json(urlregion)
@@ -91,6 +96,7 @@ def get_regions_info(region_lvl):
 
 
 def get_pre_level(region_level):
+    "Obtain the previous region level."
     urlregion = urlreg % region_level
     regions_data = parse_json(urlregion)
     regions_names = get_region_names(regions_data)
@@ -112,6 +118,7 @@ def get_pre_level(region_level):
 
 
 def get_region_codes(regions_data):
+    "Get the list of the regions codes."
     regions_id = []
     for i in range(len(regions_data)):
         regions_id.append(regions_data[i][0])
@@ -119,6 +126,7 @@ def get_region_codes(regions_data):
 
 
 def get_region_names(regions_data):
+    "Get the list of the regions names."
     regions_names = []
     for i in range(len(regions_data)):
         regions_names.append(regions_data[i][1])
@@ -126,6 +134,7 @@ def get_region_names(regions_data):
 
 
 def get_extra_data(data):
+    "Get extra data."
     data_i = data['results']
     aux = [data_i['census'], data_i['abstention'], data_i['blank'], data_i['null']]
     extras_i = np.array(aux)
@@ -133,6 +142,28 @@ def get_extra_data(data):
 
 
 def csv_builder(region_lvl, folder=None, opt=None):
+    """csv builder.
+
+    Parameters
+    ----------
+    region_lvl: str optional ['provincia', 'comunidad', 'estado']
+        the region level we want to explore.
+    folder: str or None
+        the folder in which we want to save the file.
+    opt: optional
+        flag to get the previous region.
+
+    Returns
+    -------
+    extras: pandas.DataFrame
+        the extra information about the region, the census and the nonseatable
+        vote.
+    votes: pandas.DataFrame
+        the votes obtained for each party.
+    seats: pandas.DataFrame
+        the seats obtained for each party.
+
+    """
     regions_data, regions_id, regions_names, regions_urls = get_regions_info(region_lvl)
     party_info, party_acronyms, party_ids, party_names = get_parties_info(regions_urls)
     n_regions, n_parties = len(regions_id), len(party_ids)

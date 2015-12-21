@@ -11,6 +11,9 @@ from data import *
 
 
 def compute_diputes_list(votations, collapsers, assignators, seats, extras):
+    """
+
+    """
     results = []
     for c in collapsers:
         results_c = []
@@ -26,6 +29,8 @@ def compute_diputes_list(votations, collapsers, assignators, seats, extras):
 
 
 def compute_comparative_dhont(collapse_type='grup'):
+    """
+    """
     extras, votes, seats, pre_level = csv_builder('provincia', None, True)
     parties = list(votes.columns)
     circ = encode_list(list(votes.index))
@@ -48,6 +53,8 @@ def compute_comparative_dhont(collapse_type='grup'):
 
 
 def general_results_comparison(res, names_c, names_a):
+    """
+    """
     prices, g_results, g_names = [], [], []
     for i in range(len(res)):
         for j in range(len(res[i])):
@@ -59,7 +66,8 @@ def general_results_comparison(res, names_c, names_a):
 
 
 def aggregate_comparison(g_results, iffilter=True):
-
+    """
+    """
     res_table = pd.concat(g_results, axis=1).T
     res_table.index = range(res_table.shape[0])
 
