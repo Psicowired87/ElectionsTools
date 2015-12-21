@@ -1,6 +1,6 @@
 
 """
-Utilities para parsear resultados de las elecciones generales 2015 en españa.
+Utilities para parsear resultados de las elecciones generales 2015 en espana.
 
 """
 
@@ -72,11 +72,18 @@ def get_parties_info(regions_urls=None):
 
 
 def get_regions_info(region_lvl):
-    urlregion = urlreg % region_lvl
-    regions_data = parse_json(urlregion)
-    regions_id = get_region_codes(regions_data)
-    regions_names = get_region_names(regions_data)
-    regions_urls = create_regions_urls(regions_data, region_lvl)
+    if region_lvl in ['', 'nacional', 'estado']:
+        urlregion = urlreq % ''
+        regions_data = parse_json(urlregion)
+        regions_id = ['ES']
+        regions_names = ['ESPA\xc3\x91A']
+        regions_urls = [urlreq % '']
+    else:
+        urlregion = urlreg % region_lvl
+        regions_data = parse_json(urlregion)
+        regions_id = get_region_codes(regions_data)
+        regions_names = get_region_names(regions_data)
+        regions_urls = create_regions_urls(regions_data, region_lvl)
     return regions_data, regions_id, regions_names, regions_urls
 
 
@@ -115,7 +122,7 @@ def collapsing_parties(matrix, party, collapsing_info):
 def csv_builder(region_lvl, folder):
     regions_data, regions_id, regions_names, regions_urls = get_regions_info(region_lvl)
     party_info, party_acronyms, party_ids, party_names = get_parties_info(regions_urls)
-    n_regions, n_parties = len(regions_data), len(party_ids)
+    n_regions, n_parties = len(regions_id), len(party_ids)
     ## matrices
     extras = np.zeros((n_regions, 4)).astype(int)
     votes = np.zeros((n_regions, n_parties)).astype(int)
@@ -131,8 +138,10 @@ def csv_builder(region_lvl, folder):
             seats[r_i, p_i] = data_i['seats']
     votes = pd.DataFrame(votes, columns=party_acronyms, index=regions_names)
     seats = pd.DataFrame(seats, columns=party_acronyms, index=regions_names)
-    votes.to_csv(folder+"votes_"+region_lvl, sep=";")
-    seats.to_csv(folder+"seats_"+region_lvl, sep=";")
+    cols = ['abstencion', 'blancos', 'nulos']
+    extras = pd.DataFrame(extras[:, 1:], columns=cols, index=regions_names)
+    #votes.to_csv(folder+"votes_"+region_lvl, sep=";")
+    #seats.to_csv(folder+"seats_"+region_lvl, sep=";")
     return extras, votes, seats
 
 
