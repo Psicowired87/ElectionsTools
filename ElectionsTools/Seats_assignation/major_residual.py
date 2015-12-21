@@ -63,7 +63,10 @@ class MResidual_assignation(Seat_assignator):
             the residual votes not used to pay seats and above the cutoff.
 
         """
-        seatable_votes = votes[self.votetypes['seatable']].as_matrix()
+	if type(votes) == pd.DataFrame:
+	    seatable_votes = votes[self.votetypes['seatable']].as_matrix()
+	else:
+	    seatable_votes = votes
         rest_votes = (seatable_votes * residuals).astype(int)
         return rest_votes
 

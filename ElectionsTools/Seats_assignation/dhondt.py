@@ -67,7 +67,10 @@ class DHondt_assignation(Seat_assignator):
             the residual votes not used to pay seats and above the cutoff.
 
         """
-        seatable_votes = votes[self.votetypes['seatable']].as_matrix()
+	if type(votes) == pd.DataFrame:
+	    seatable_votes = votes[self.votetypes['seatable']].as_matrix()
+	else:
+	    seatable_votes = votes
         rest_votes = compute_residual_dhondt_votes(seatable_votes, seats,
                                                    prices, cutoff)
         return rest_votes

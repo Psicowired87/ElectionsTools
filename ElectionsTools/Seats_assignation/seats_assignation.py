@@ -196,6 +196,9 @@ def prepare_votetypes(votes, votetypes):
         the information of the different types of vote variables.
 
     """
+    if type(votes) == np.ndarray:
+        votetypes = {}
+	return votetypes
     cols = votes.columns
     votetypes['computable'] = [c for c in cols if c not in noncomputable]
     votetypes['seatable'] = [c for c in cols if c not in nonseatable]
