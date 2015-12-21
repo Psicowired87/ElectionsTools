@@ -8,7 +8,9 @@ import os
 pathfiles = '../data/spain_previous_elections_results/provincia/'
 pathfiles = '/'.join(os.path.realpath(__file__).split('/')[:-1]+[pathfiles])
 
-fles = [pathfiles+'PROV_02_198210_1.xlsx',
+fles = [pathfiles+'PROV_02_197706_1.xlsx',
+        pathfiles+'PROV_02_197903_1.xlsx',
+        pathfiles+'PROV_02_198210_1.xlsx',
         pathfiles+'PROV_02_198606_1.xlsx',
         pathfiles+'PROV_02_198910_1.xlsx',
         pathfiles+'PROV_02_199306_1.xlsx',
@@ -17,7 +19,7 @@ fles = [pathfiles+'PROV_02_198210_1.xlsx',
         pathfiles+'PROV_02_200403_1.xlsx',
         pathfiles+'PROV_02_200803_1.xlsx',
         pathfiles+'PROV_02_201111_1.xlsx']
-years = [1982, 1986, 1989, 1993, 1996, 2000, 2004, 2008, 2011]
+years = [1977, 1979, 1982, 1986, 1989, 1993, 1996, 2000, 2004, 2008, 2011]
 
 
 def compute_diputes_DHont(filename):

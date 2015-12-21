@@ -9,6 +9,8 @@ import simplejson
 import numpy as np
 import pandas as pd
 
+from pythonUtils.CodingText import *
+
 
 #"http://resultadosgenerales2015.interior.es/congreso/results/ES201512-CON-ES/ES/CA09/08/info.json"
 urlreq = "http://resultadosgenerales2015.interior.es/congreso/results/ES201512-CON-ES/ES/%sinfo.json"
@@ -51,6 +53,7 @@ def create_regions_urls(regions_data, region_lvl):
             regions_urls.append(urlreq % rf)
     return regions_urls
 
+
 def get_parties_info(regions_urls=None):
     if regions_urls is None:
         party_info = parse_json(urlweb + "/info.json")['results']['parties']
@@ -67,7 +70,7 @@ def get_parties_info(regions_urls=None):
                     party_acronyms.append(party_info[k]['acronym'])
                     party_ids.append(party_info[k]['code'])
                     party_names.append(party_info[k]['name'])
-            
+
     return party_info, party_acronyms, party_ids, party_names
 
 
@@ -85,6 +88,27 @@ def get_regions_info(region_lvl):
         regions_names = get_region_names(regions_data)
         regions_urls = create_regions_urls(regions_data, region_lvl)
     return regions_data, regions_id, regions_names, regions_urls
+
+
+def get_pre_level(region_level):
+    urlregion = urlreg % region_level
+    regions_data = parse_json(urlregion)
+    regions_names = get_region_names(regions_data)
+    if region_level == 'provincia':
+        region_prelevel = 'comunidad'
+    elif region_level == 'comunidad':
+        region_prelevel = 'estado'
+        pre_names = ['ES' for i in range(len(regions_names))]
+        return regions_names, pre_names
+    urlpreregion = urlreg % region_prelevel
+    preregions_data = parse_json(urlpreregion)
+    preregions_id = []
+    for i in range(len(regions_data)):
+        preregions_id.append(regions_data[i][2])
+    preregion_codes = [e[0] for e in preregions_data]
+    preregion_names = [e[1] for e in preregions_data]
+    pre_names = [preregion_names[preregion_codes.index(e)] for e in preregions_id]
+    return regions_names, pre_names
 
 
 def get_region_codes(regions_data):
@@ -108,18 +132,7 @@ def get_extra_data(data):
     return extras_i
 
 
-def collapsing_parties(matrix, party, collapsing_info):
-    n_parties = len(collapsing_info.keys())
-    new_matrix = np.zeros((matrix.shape[0], n_parties))
-    for i in range(n_parties):
-        aux = collapsing_info.keys()[i]
-        ns = len(aux)
-        idxs = [party.index(aux[j]) for j in range(ns)]
-        new_matrix[:, i] = np.sum(matrix[:, idxs] , axis=1)
-    return new_matrix
-
-
-def csv_builder(region_lvl, folder):
+def csv_builder(region_lvl, folder=None, opt=None):
     regions_data, regions_id, regions_names, regions_urls = get_regions_info(region_lvl)
     party_info, party_acronyms, party_ids, party_names = get_parties_info(regions_urls)
     n_regions, n_parties = len(regions_id), len(party_ids)
@@ -129,22 +142,25 @@ def csv_builder(region_lvl, folder):
     seats = np.zeros((n_regions, n_parties)).astype(int)
     for r_i in range(n_regions):
         data = parse_json(regions_urls[r_i])
-
         extras[r_i, :] = get_extra_data(data)
         for i in range(len(data['results']['parties'])):
             data_i = data['results']['parties'][i]
             p_i = party_acronyms.index(data_i['acronym'])
             votes[r_i, p_i] = data_i['votes']['presential']
             seats[r_i, p_i] = data_i['seats']
-    votes = pd.DataFrame(votes, columns=party_acronyms, index=regions_names)
-    seats = pd.DataFrame(seats, columns=party_acronyms, index=regions_names)
+    cols, rows = encode_list(party_acronyms), encode_list(regions_names)
+    rep = {';': ','}
+    cols, rows = change_char_list(cols, rep), change_char_list(rows, rep)
+
+    votes = pd.DataFrame(votes, columns=cols, index=rows)
+    seats = pd.DataFrame(seats, columns=cols, index=rows)
     cols = ['abstencion', 'blancos', 'nulos']
-    extras = pd.DataFrame(extras[:, 1:], columns=cols, index=regions_names)
-    #votes.to_csv(folder+"votes_"+region_lvl, sep=";")
-    #seats.to_csv(folder+"seats_"+region_lvl, sep=";")
+    extras = pd.DataFrame(extras[:, 1:], columns=cols, index=rows)
+    if folder is not None:
+        extras.to_csv(folder+"extras_"+region_lvl+'.csv', sep=';')
+        votes.to_csv(folder+"votes_"+region_lvl+'.csv', sep=";")
+        seats.to_csv(folder+"seats_"+region_lvl+'.csv', sep=";")
+    if opt is not None:
+        pre_level = get_pre_level(region_lvl)
+        return extras, votes, seats, pre_level
     return extras, votes, seats
-
-
-
-
-
