@@ -60,8 +60,8 @@ cand_fus_prov = {'PSOE': ['PSE-EE (PSOE)', "PSOE", "PSC", "PSE-EE", "PSdeG-PSOE"
                  "JS,PC": ["JS,PC"]}
 
 
-grup_fus_prov = {'PSOE': ['PSE-EE (PSOE)', "PSOE", "PSE-EE", "PSdeG-PSOE", "PSC-PSOE", "PSOE-NCa"],
-                 "PSC": ["PSC"],
+grup_fus_prov = {'PSOE': ['PSE-EE (PSOE)', "PSOE", "PSE-EE", "PSdeG-PSOE", "PSC", "PSOE-NCa"],
+                 "PSC-PSOE": ["PSC-PSOE"],
                  "PODEMOS": ["PODEMOS-AHAL DUGU", "PODEMOS", "PODEMOS-Ahora Alto Aragón en Común"],
                  "EN COMÚ": ["EN COMÚ"],
                  "PODEMOS-COMPROMÍS": ["PODEMOS-COMPROMÍS", "PODEMOS - COMPROMIS"],

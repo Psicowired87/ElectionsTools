@@ -44,7 +44,7 @@ class DHondt_assignation(Seat_assignator):
         """
         ## 0. Prepare variable needed
         cutoff = self.cutoff if cutoff == 0 else cutoff
-        self.votetypes = prepare_votetypess(votes, self.votetypes)
+        self.votetypes = prepare_votetypes(votes, self.votetypes)
         ## 1. Compute assignation
         seats, prices = transform_votes2seats_dhondt(votes, self.votetypes,
                                                      self.n_seats, cutoff)

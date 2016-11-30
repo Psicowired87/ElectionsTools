@@ -1,4 +1,19 @@
 
+"""
+
+Example
+-------
+>>> from ElectionsTools.cases.elections_spain2015_analysis import \
+>>>     compute_comparative_dhont, general_results_comparison, aggregate_comparison
+>>> res, names_c, names_a = compute_comparative_dhont()
+>>> g_results, g_names = general_results_comparison(res, names_c, names_a)
+>>> res_table = aggregate_comparison(g_results)
+>>> res_table.index = g_names
+>>> res_table.to_csv('/home/antonio/code/CooperativeGames/res_table.csv', sep=';')
+"""
+
+
+
 import numpy as np
 import pandas as pd
 from ElectionsTools.Seats_assignation import DHondt_assignation, create_bunch_assignators
@@ -28,7 +43,7 @@ def compute_diputes_list(votations, collapsers, assignators, seats, extras):
     return results
 
 
-def compute_comparative_dhont(collapse_type='grup'):
+def compute_comparative_dhont():
     """
     """
     extras, votes, seats, pre_level = csv_builder('provincia', None, True)
@@ -44,8 +59,8 @@ def compute_comparative_dhont(collapse_type='grup'):
 
     collapsers, names_c = create_bunch_collapsers(collapses_p, collapses_c,
                                                   names_collapsers)
-    assign_class, assign_pars = [DHondt_assignation], [{'cutoff': 0.03}]
-    names_a = [['hondt'], ['cutoff0', 'cutoff05']]
+    assign_class, assign_pars = [DHondt_assignation], [{'cutoff': 0.0}, {'cutoff': 0.03}]
+    names_a = [['hondt'], ['cutoff0', 'cutoff003']]
     assignators, names_a = create_bunch_assignators(assign_class, assign_pars,
                                                     names_a)
     res = compute_diputes_list(votes, collapsers, assignators, seats, extras)
